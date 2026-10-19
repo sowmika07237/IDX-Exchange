@@ -1,0 +1,153 @@
+import pandas as pd
+
+
+# ============================================================
+# WEEK 4: DATA CLEANING AND PREPARATION
+# ============================================================
+
+
+# ------------------------------------------------------------
+# 1. LOAD WEEK 2-3 DATASET
+# ------------------------------------------------------------
+
+sold = pd.read_csv(
+    "week2_3_filtered_sold.csv",
+    low_memory=False
+)
+
+print("\n================ BEFORE CLEANING ================")
+
+rows_before = len(sold)
+
+print("Rows before cleaning:", rows_before)
+print("Columns:", len(sold.columns))
+
+
+# ------------------------------------------------------------
+# 2. CONVERT DATE COLUMNS TO DATETIME
+# ------------------------------------------------------------
+
+date_columns = [
+    "CloseDate",
+    "PurchaseContractDate",
+    "ListingContractDate",
+    "ContractStatusChangeDate"
+]
+
+for column in date_columns:
+    if column in sold.columns:
+        sold[column] = pd.to_datetime(
+            sold[column],
+            errors="coerce"
+        )
+
+print("\n================ DATE DATA TYPES ================")
+
+for column in date_columns:
+    if column in sold.columns:
+        print(column, sold[column].dtype)
+
+
+# ------------------------------------------------------------
+# 3. CHECK MISSING VALUES
+# ------------------------------------------------------------
+
+print("\n================ MISSING VALUES ================")
+
+important_columns = [
+    "ClosePrice",
+    "LivingArea",
+    "DaysOnMarket",
+    "BedroomsTotal",
+    "BathroomsTotalInteger",
+    "CloseDate"
+]
+
+for column in important_columns:
+    if column in sold.columns:
+        print(column, sold[column].isna().sum())
+
+
+# ------------------------------------------------------------
+# 4. CONVERT NUMERIC COLUMNS
+# ------------------------------------------------------------
+
+numeric_columns = [
+    "ClosePrice",
+    "LivingArea",
+    "DaysOnMarket",
+    "BedroomsTotal",
+    "BathroomsTotalInteger",
+    "Latitude",
+    "Longitude"
+]
+
+for column in numeric_columns:
+    if column in sold.columns:
+        sold[column] = pd.to_numeric(
+            sold[column],
+            errors="coerce"
+        )
+
+print("\n================ NUMERIC DATA TYPES ================")
+
+for column in numeric_columns:
+    if column in sold.columns:
+        print(column, sold[column].dtype)
+
+
+# ------------------------------------------------------------
+# 5. FLAG INVALID NUMERIC VALUES
+# ------------------------------------------------------------
+
+if "ClosePrice" in sold.columns:
+    sold["invalid_close_price_flag"] = sold["ClosePrice"] <= 0
+
+if "LivingArea" in sold.columns:
+    sold["invalid_living_area_flag"] = sold["LivingArea"] <= 0
+
+if "DaysOnMarket" in sold.columns:
+    sold["negative_days_on_market_flag"] = sold["DaysOnMarket"] < 0
+
+if "BedroomsTotal" in sold.columns:
+    sold["negative_bedrooms_flag"] = sold["BedroomsTotal"] < 0
+
+if "BathroomsTotalInteger" in sold.columns:
+    sold["negative_bathrooms_flag"] = (
+        sold["BathroomsTotalInteger"] < 0
+    )
+
+
+# ------------------------------------------------------------
+# 6. INVALID VALUE SUMMARY
+# ------------------------------------------------------------
+
+print("\n================ INVALID VALUES ================")
+
+flag_columns = [
+    "invalid_close_price_flag",
+    "invalid_living_area_flag",
+    "negative_days_on_market_flag",
+    "negative_bedrooms_flag",
+    "negative_bathrooms_flag"
+]
+
+for column in flag_columns:
+    if column in sold.columns:
+        print(column, sold[column].sum())
+
+
+# ------------------------------------------------------------
+# 7. SAVE WEEK 4 DATASET
+# ------------------------------------------------------------
+
+sold.to_csv(
+    "week4_cleaned_sold.csv",
+    index=False
+)
+
+print("\n================ COMPLETE ================")
+
+print("Rows before:", rows_before)
+print("Rows after:", len(sold))
+print("Week 4 dataset saved as week4_cleaned_sold.csv")
