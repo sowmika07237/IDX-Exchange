@@ -1,0 +1,48 @@
+# 5. MAKE SURE COORDINATES ARE NUMERIC 
+#Converts Latitude and Longitude into numbers and changes invalid values to NaN
+# ------------------------------------------------------------
+
+coordinate_columns = [
+    "Latitude",
+    "Longitude"
+]
+
+for column in coordinate_columns:
+    if column in sold.columns:
+        sold[column] = pd.to_numeric(
+            sold[column],
+            errors="coerce"
+        )
+
+
+# ------------------------------------------------------------
+# 6. FLAG MISSING COORDINATES
+# Creates a True/False flag to identify rows where Latitude or Longitude is missing
+# ------------------------------------------------------------
+
+if (
+    "Latitude" in sold.columns
+    and "Longitude" in sold.columns
+):
+    sold["missing_coordinates_flag"] = (
+        sold["Latitude"].isna()
+        | sold["Longitude"].isna()
+    )
+
+
+# ------------------------------------------------------------
+# 7. FLAG ZERO COORDINATES
+#Creates a True/False flag when Latitude or Longitude is 0, since 0 may represent missing coordinate data
+# ------------------------------------------------------------
+# Some datasets use 0 as a placeholder for missing coordinates.
+# Some datasets use 0 as a placeholder for missing coordinates.
+
+if (
+    "Latitude" in sold.columns
+    and "Longitude" in sold.columns
+):
+    sold["zero_coordinates_flag"] = (
+        (sold["Latitude"] == 0)
+        | (sold["Longitude"] == 0)
+    )
+    
